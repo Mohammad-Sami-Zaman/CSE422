@@ -1,0 +1,59 @@
+from google.colab import drive
+drive.mount('/content/drive')
+import pandas as pd
+import numpy as np
+import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+
+# Taking Input from the dataset Of Housing Price
+
+home_planning = pd.read_csv('/content/drive/MyDrive/Data set/Housing Price Prediction Data.csv')
+home_planning.head(50)
+
+# How many Rows and Colums
+# How many Row shows Nan or None with respect to colums
+
+print("Rows, colums:", home_planning.shape)
+print(home_planning.isnull().sum())
+
+# Deleting Rows where Colum has None Data
+
+home_planning = home_planning.dropna(axis = 0 , subset = ['Bedrooms'])
+print("Rows, colums:", home_planning.shape)
+print(home_planning.isnull().sum())
+print(home_planning.head(50))
+
+# searching Duplicated Data with respect to Rows
+
+dup_val = (home_planning.duplicated().sum())
+if home_planning.duplicated().sum() == 0:
+    print("Can not find any duplicated data:", dup_val)
+else:
+    print("Duplicated data is been founded:", dup_val)
+
+# Handling categorical variables
+
+home_planning = pd.get_dummies(home_planning, columns=['Neighborhood'])
+print(home_planning.head())
+print(home_planning.shape)
+
+# Feature scaling
+# Because Price is Too much or low
+# Same for SquareFeet  too much or low
+
+scaler = MinMaxScaler()
+home_planning[['Price', 'SquareFeet']] = scaler.fit_transform(home_planning[['Price', 'SquareFeet']])
+print(home_planning.head(100))
+print(home_planning.shape)
+
+# Correlation as feature selection 
+
+home_planning_corr = home_planning.corr()
+print(home_planning_corr)
+pic_gra = sns.heatmap(home_planning_corr, cmap = "YlGnBu")
+
+# Droping 2 variables using correlation as feature selection
+
+home_planning_corr_drop = home_planning_corr.drop(['SquareFeet', 'Price'], axis = 1)
+print(home_planning_corr_drop)
+pic_gra = sns.heatmap(home_planning_corr_drop, cmap = "YlGnBu")
