@@ -1,0 +1,135 @@
+# Alpha Beta algorithm
+# part 1
+import random
+inp_f = open("Input.txt")
+out_f = open("output.txt", "w")
+lst_pow = [0]*32
+for i in range(0, 32, 1):
+    if i % 2 == 0:
+        lst_pow[i] = 1
+    else:
+        lst_pow[i] = -1
+
+def alpha_beta_pruning(child, depth_lvl, alpha_max, beta_min, maximizing):
+    if depth_lvl == 0:
+        return lst_pow[child]
+    if maximizing:
+         max_value = float('-inf')
+         for i in range(0, 2, 1):
+            if beta_min > alpha_max:
+                value = alpha_beta_pruning(child * 2 + i, depth_lvl - 1, alpha_max, beta_min, False)
+                max_value = max(value, max_value)
+                alpha_max = max(value, alpha_max)
+            else:     #beta_min <= alpha_max
+                    break
+         return max_value
+    else:
+        min_value = float('inf')
+        for i in range(0, 2, 1):
+            if beta_min > alpha_max:
+                value = alpha_beta_pruning(child * 2 + i, depth_lvl - 1, alpha_max, beta_min, True)
+                min_value = min(value, min_value)
+                beta_min = min(value, beta_min)
+            else:      #beta_min <= alpha_max
+                    break
+        return min_value
+
+def play_game(begin_battle):
+    start = begin_battle
+    round = 0
+    win_his = []   # win history
+    scorpion = 0
+    sub_zero = 0
+    while round < 3:
+          winning = alpha_beta_pruning(0, 5, float('-inf'), float('inf'), start)
+          if winning == -1:
+              winner = "scorpion"
+          else:
+              winner = "sub_zero"
+          win_his.append(winner)
+          start = 1 - start
+          round = round + 1
+    
+    for i in win_his:
+        if i == "scorpion":
+            scorpion = scorpion + 1
+        else:
+            sub_zero = sub_zero + 1
+    if  sub_zero > scorpion :
+        win = "sub_zero"
+    else:
+        win = "scorpion"
+    return win, round, win_his
+
+begin_battle = int(input("start the fight by clicking 1 or 0 for sub_zero and scorpion to fight: "))
+winner, rounds, win_history = play_game(begin_battle)
+print('Game Winner: ', winner,file = out_f)
+print('Rounds: ', rounds,file = out_f)
+for i in range(0, len(win_history)) :
+    print('Winner of the round', i + 1, ':', win_history[i],file = out_f)
+    
+inp_f.close()
+out_f.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Part 2
+inp_f = open("Input_2.txt")
+out_f = open("output_2.txt", "w")
+give_val = [3, 6, 2, 3, 7, 1, 2, 0]
+
+def alpha_beta_pruning(child, depth_lvl, alpha_max, beta_min, maximizing):
+    if depth_lvl == 0:
+        return give_val[child]
+    if maximizing:
+         max_value = float('-inf')
+         for i in range(0, 2, 1):
+            if beta_min > alpha_max:
+                value = alpha_beta_pruning(child * 2 + i, depth_lvl - 1, alpha_max, beta_min, False)
+                max_value = max(value, max_value)
+                alpha_max = max(value, alpha_max)
+            else:     #beta_min <= alpha_max
+                    break
+         return max_value
+    else:
+        min_value = float('inf')
+        for i in range(0, 2, 1):
+            if beta_min > alpha_max:
+                value = alpha_beta_pruning(child * 2 + i, depth_lvl - 1, alpha_max, beta_min, True)
+                min_value = min(value, min_value)
+                beta_min = min(value, beta_min)
+            else:      #beta_min <= alpha_max
+                    break
+        return min_value
+
+def pacman(cost):
+    no_power = alpha_beta_pruning(0, 3, float('-inf'), float('inf'), True)
+    left_side = alpha_beta_pruning(1, 2, float('-inf'), float('inf'), True)
+    right_side = alpha_beta_pruning(2, 1, float('-inf'), float('inf'), True)
+    left_power = left_side - cost
+    right_power = right_side - cost
+    power = max(left_power, right_power)
+    if power <= no_power:
+        return f'The maximum value is {no_power} Pacman does not use dark magic'
+    else: 
+        if right_power < left_power:
+            return f'The maximum value is {left_power} Pacman goes on the left side and uses dark magic'
+        else:
+            return f'The maximum value is {right_power} Pacman goes on right side and uses dark magic'
+
+cost = [2,5]
+for i in range(0, len(cost), 1):
+    print('For cost', cost[i] ,pacman(cost[i]), file = out_f)
+    
+inp_f.close()
+out_f.close()
